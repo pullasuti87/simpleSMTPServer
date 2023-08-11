@@ -1,27 +1,63 @@
 package simple;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 public class SimpleSMTP {
     public static void main(String[] args) {
-        // default port
-        int port = 25;
+        int port = 25; // default port
 
-        // used to create a server-side socket
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("smtp server is listening on port " + port);
+            System.out.println("listening on port " + port);
 
-            // keeps accepting and handling client connections indefinitely, until error happens
+            // accepting client connections in an infinite loop
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("client connected: " + clientSocket.getInetAddress());
+                // accept connection
+                Socket clientS = serverSocket.accept();
+                System.out.println("client connected: " + clientS.getInetAddress());
 
+                // handling client communication
+                handleClient(clientS);
             }
         } catch (IOException error) {
             System.out.println("exception occurred: " + error.getMessage());
         }
     }
-// TO BE CONTINUED...
+    private static void handleClient(Socket s) {
+        try{
+        // reader to read data from the client's input stream
+        InputStreamReader inputStreamReader = new InputStreamReader(s.getInputStream());
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        // send data to the client using its output stream
+        PrintWriter writer = new PrintWriter(s.getOutputStream(), true);
+
+            writer.println("220 server ready");
+
+            String message;
+            while ((message = reader.readLine()) != null) {
+                System.out.println("client sent: " + message);
+
+                if (message.startsWith("HELO") || message.startsWith("EHLO")) {
+                    writer.println("250 Hello " + s.getInetAddress());
+                } else if (message.startsWith("MAIL FROM:")) {
+                    writer.println("250 OK");
+                } else if (message.startsWith("RCPT TO:")) {
+                    writer.println("250 OK");
+                } else if (message.equals("DATA")) {
+                    writer.println("250 OK");
+                } else if (message.equals("QUIT")) {
+                    writer.println("221 Bye");
+                    break;
+                } else {
+                    writer.println("500 Not recognized");
+                }
+            }
+
+            s.close();
+        } catch (IOException error) {
+            error.printStackTrace();
+        }
+    }
 }
+
+TO BE CONTINUED...
