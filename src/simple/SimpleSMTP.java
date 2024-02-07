@@ -10,13 +10,11 @@ public class SimpleSMTP {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("listening on port " + port);
 
-            // accepting client connections in an infinite loop
+            // accepting client connections 
             while (true) {
-                // accept connection
                 Socket clientS = serverSocket.accept();
                 System.out.println("client connected: " + clientS.getInetAddress());
 
-                // handling client communication
                 handleClient(clientS);
             }
         } catch (IOException error) {
@@ -25,10 +23,10 @@ public class SimpleSMTP {
     }
     private static void handleClient(Socket s) {
         try{
-        // reader to read data from the client's input stream
+        // read from the client's input stream
         InputStreamReader inputStreamReader = new InputStreamReader(s.getInputStream());
         BufferedReader reader = new BufferedReader(inputStreamReader);
-        // send data to the client using its output stream
+        // send data output stream
         PrintWriter writer = new PrintWriter(s.getOutputStream(), true);
 
             writer.println("220 server ready");
@@ -60,4 +58,3 @@ public class SimpleSMTP {
     }
 }
 
-TO BE CONTINUED...
